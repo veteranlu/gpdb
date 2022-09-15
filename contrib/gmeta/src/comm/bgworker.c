@@ -25,8 +25,9 @@
 #include "storage/shm_mq.h"
 #include "storage/shm_toc.h"
 
-#include "sync_worker/sync_worker.h"
 #include "fdbcli/fdbutil.h"
+#include "comm/comm.h"
+
 
 static void handle_sigterm(SIGNAL_ARGS);
 static void ms_sighup_handler(SIGNAL_ARGS);

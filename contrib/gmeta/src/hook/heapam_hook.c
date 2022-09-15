@@ -1,4 +1,5 @@
-#include "sync_worker/sync_worker.h"
+#include "comm/comm.h"
+
 #include "storage/shm_toc.h"
 
 #define MAX_SYSTABLE_OID 13369

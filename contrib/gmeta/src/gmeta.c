@@ -41,7 +41,7 @@
 #include "utils/relfilenodemap.h"
 #include "utils/resowner.h"
 
-#include "sync_worker/sync_worker.h"
+#include "comm/comm.h"
 
 
 /* GUC variables. */

@@ -1,0 +1,5 @@
+# sync metadata to global metadata storage FDB 
+comment = 'global metadata service'
+default_version = '1.0'
+module_pathname = '$libdir/gmeta'
+relocatable = true
