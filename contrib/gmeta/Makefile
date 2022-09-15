@@ -1,8 +1,13 @@
 # contrib/pg_prewarm/Makefile
 
-MODULE_big = meta_sync
-OBJS = src/gmeta.o src/comm/setup.o src/comm/bgworker.o \
-		src/hook/heapam_hook.o src/fdbcli/fdbutil.o $(WIN32RES)
+MODULE_big = gmeta
+OBJS = src/gmeta.o \
+		src/comm/setup.o src/comm/bgworker.o \
+		src/hook/heapam_hook.o \
+		src/fdbcli/fdbutil.o \
+		src/tool/reader.o \
+		$(WIN32RES)
+
 PG_CPPFLAGS += -I./include -I./src 
 SHLIB_LINK += -L./lib -lfdb_c -lpthread
 

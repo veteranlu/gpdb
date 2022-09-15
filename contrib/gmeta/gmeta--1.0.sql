@@ -6,7 +6,10 @@
 -- Register the function.
 
 -- Show visibility map information for each block in a relation.
+
+
+-- Register the function.
 CREATE FUNCTION pg_show_gmetadata(regclass, regclass)
 RETURNS SETOF record
-AS 'MODULE_PATHNAME', 'gmeta'
-LANGUAGE C STRICT;
+AS 'MODULE_PATHNAME', 'pg_show_gmetadata'
+LANGUAGE C PARALLEL SAFE;
