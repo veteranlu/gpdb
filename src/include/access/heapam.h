@@ -100,6 +100,17 @@ typedef enum
  * ----------------
  */
 
+/*
+ * TODO(kaka): define heap_update, heap_delete hook
+ */
+/* Plugin provides a hook function matching this signature. */
+typedef void (*heap_insert_hook_type) (Relation relation,
+										 HeapTuple tup,
+										 CommandId cid,
+										 int options,
+										 BulkInsertState bistate);
+
+extern PGDLLIMPORT heap_insert_hook_type heap_insert_hook;
 
 /*
  * HeapScanIsValid

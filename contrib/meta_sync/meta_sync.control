@@ -1,0 +1,5 @@
+# metadata sync to FDB extension
+comment = 'metadata sync to FDB'
+default_version = '1.0'
+module_pathname = '$libdir/meta_sync'
+relocatable = true

@@ -115,6 +115,7 @@ static XLogRecPtr log_heap_new_cid(Relation relation, HeapTuple tup);
 static HeapTuple ExtractReplicaIdentity(Relation rel, HeapTuple tup, bool key_modified,
 										bool *copy);
 
+heap_insert_hook_type heap_insert_hook = NULL;
 
 /*
  * Each tuple lock mode has a corresponding heavyweight lock, and one or two
@@ -2470,6 +2471,8 @@ simple_heap_insert(Relation relation, HeapTuple tup)
 {
 	heap_insert(relation, tup, GetCurrentCommandId(true), 0, NULL,
 				GetCurrentTransactionId());
+	if (heap_insert_hook)
+		(*heap_insert_hook) (relation, tup, GetCurrentCommandId(true), 0, NULL);
 }
 
 /*
