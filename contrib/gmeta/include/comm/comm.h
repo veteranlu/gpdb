@@ -50,8 +50,16 @@ typedef struct MetaSyncSharedState
     dsm_handle  seg_handle;
 } MetaSyncSharedState;
 
-#define MSG_QUEUE_SUCC "s"
-#define MSG_QUEUE_FAIL "e"
+typedef struct KeyValueBlock
+{
+	int 	key_size;
+	int 	value_size;
+
+	/* data following the header->key, and header->value */
+	char 		data[1];
+} KeyValueBlock;
+
+#define SizeofKeyValueBlockHeader offsetof(KeyValueBlock, data)
 
 /**
  * the memory layout of seg's toc.
@@ -70,14 +78,13 @@ typedef struct MetaSyncSharedState
 extern void sync_worker_setup(int64 queue_size, int32 nworkers);
 
 /* Main entrypoint for a worker. */
-extern void sync_worker_main(Datum) pg_attribute_noreturn();
+extern void gmeta_bgworker_main(Datum) pg_attribute_noreturn();
 
 extern bool ms_init_shmem(MetaSyncSharedState **pms_state);
 
-extern void heap_insert_hook_impl(Relation relation,
-										 HeapTuple tup,
-										 CommandId cid,
-										 int options,
-										 BulkInsertState bistate);
+extern void setup_front_msgqueue(dsm_segment **p_seg, shm_mq_handle **p_inqh, shm_mq_handle **p_outqh);
+extern void release_front_msgqueue(dsm_segment *seg);
+
+
 
 #endif

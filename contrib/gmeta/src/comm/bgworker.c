@@ -25,9 +25,10 @@
 #include "storage/shm_mq.h"
 #include "storage/shm_toc.h"
 
-#include "fdbcli/fdbutil.h"
-#include "comm/comm.h"
 
+#include "comm/comm.h"
+#include "comm/handler.h"
+#include "fdbcli/fdbutil.h"
 
 static void handle_sigterm(SIGNAL_ARGS);
 static void ms_sighup_handler(SIGNAL_ARGS);
@@ -130,21 +131,16 @@ setup_dynamic_shared_memory(int64 queue_size, int nworkers,
  * are attach_to_queues() and copy_messages().
  */
 void
-sync_worker_main(Datum main_arg)
+gmeta_bgworker_main(Datum main_arg)
 {
 	dsm_segment *seg;
 	shm_toc    *toc;
 	shm_mq_handle *inqh;
 	shm_mq_handle *outqh;
-	volatile sync_worker_mq_header *hdr;
+	sync_worker_mq_header *hdr;
 	int			myworkernumber;
-	PGPROC	   *registrant;
 	bool 		first_time;
 	int64      queue_size = DatumGetInt64(main_arg);
-
-
-	elog(LOG, "22222223333333333333222222");
-
 
 
 	/*
@@ -205,9 +201,7 @@ sync_worker_main(Datum main_arg)
 	ms_state->seg_handle = dsm_segment_handle(seg);
 	LWLockRelease(&ms_state->lock);
 
-	elog(LOG, "handle %ld", ms_state->seg_handle);
-
-	elog(LOG, "207");
+	elog(LOG, "handle %u", ms_state->seg_handle);
 
 	/*
 	 * Acquire a worker number.
@@ -226,20 +220,13 @@ sync_worker_main(Datum main_arg)
 				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
 				 errmsg("too many message queue testing workers already")));
 
-
-	elog(LOG, "227");
-
 	/*
 	 * Attach to the appropriate message queues.
 	 */
 	attach_to_queues(seg, toc, myworkernumber, &inqh, &outqh);
 
-	elog(LOG, "254");
-
 	/* Do the work. */
 	handle_message(inqh, outqh);
-
-	elog(LOG, "259");
 
 	/*
 	 * We're done.  For cleanliness, explicitly detach from the shared memory
@@ -283,10 +270,10 @@ attach_to_queues(dsm_segment *seg, shm_toc *toc, int myworkernumber,
 static void
 handle_message(shm_mq_handle *inqh, shm_mq_handle *outqh)
 {
-	Size		in_len, out_len;
-	void	   *in_data, *out_data;
+	Size		in_len;
+	void	   *in_data;
 	shm_mq_result res;
-	int 		ret;
+	
 
 	fdb_error_t err = fdb_select_api_version(710);
 	if (err)
@@ -294,50 +281,49 @@ handle_message(shm_mq_handle *inqh, shm_mq_handle *outqh)
 
 	elog(LOG, "Running test at client version: %s\n", fdb_get_client_version());
 
-	char *cluster_file_path = "/workspace/gpdb/contrib/meta_sync/config/fdb.cluster";
+	elog(LOG, "222222%d", __LINE__ );
+
+
+	char *cluster_file_path = "/workspace/gpdb/contrib/gmeta/config/fdb.cluster";
 	Connection conn;
 	CreateConnection(&conn, cluster_file_path);
 
 
 	for (;;)
 	{
+		HandlerFunc func;
+
 		/* Notice any interrupts that have occurred. */
 		CHECK_FOR_INTERRUPTS();
+		elog(LOG, "1111111111%d", __LINE__ );
 
-		/* Receive a message. */
+		/* 1. Receive operation: get/set/clear */
+		res = shm_mq_receive(inqh, &in_len, &in_data, false);
+		if (res != SHM_MQ_SUCCESS)
+			break;
+		elog(LOG, "1111111111%d", __LINE__ );
+		func = GetHandlerFunc(in_data, in_len);
+
+		elog(LOG, "1111111111%d", __LINE__ );
+
+		/* 2. Receive a message, which should be the get/set/clear's parameters. */
 		res = shm_mq_receive(inqh, &in_len, &in_data, false);
 		if (res != SHM_MQ_SUCCESS)
 			break;
 
-		Form_pg_class ctuple = (Form_pg_class) in_data;
+		elog(LOG, "1111111111%d", __LINE__ );
 
-
-		char *key = palloc0(sizeof(128));
-		sprintf(key, "%d/%d", ctuple->relnamespace, ctuple->oid);
-		elog(LOG, "[kaka] insert into fdb key: %s. ", key);
-
-		/* send value to fdb */	
-		FDBKeyValue kv;
-		kv.key = (uint8_t *)key;
-		kv.key_length = strlen(key) + 1;
-		kv.value = (uint8_t *)ctuple;
-		kv.value_length = sizeof(FormData_pg_class);
-
-		ResultSet rs = {NULL, NULL};
-		ret = KVSet(&conn, &kv, &rs);
-		if (ret == 0)
-		{
-			out_data = MSG_QUEUE_SUCC;
-			out_len = strlen(MSG_QUEUE_SUCC);
-		} else {
-			out_data = MSG_QUEUE_FAIL;
-			out_len = strlen(MSG_QUEUE_FAIL);
-		}
+		OperateResult oret = (*func) (&conn, in_data, in_len);
 		
-		/* Send it back out. */
-		res = shm_mq_send(outqh, out_len, out_data, false);
+		elog(LOG, "1111111111%d", __LINE__ );
+
+		/* 3. Send it back out. */
+		res = shm_mq_send(outqh, oret.data_len, oret.data, false);
 		if (res != SHM_MQ_SUCCESS)
 			break;
+
+		elog(LOG, "1111111111%d", __LINE__ );
+		/*FreeOperateResult(oret);*/
 	}
 
 	CloseConnection(&conn);
@@ -376,7 +362,7 @@ ms_init_shmem(MetaSyncSharedState **pms_state)
 	bool		found;
 
 	LWLockAcquire(AddinShmemInitLock, LW_EXCLUSIVE);
-	MetaSyncSharedState *state = ShmemInitStruct("metasync",
+	MetaSyncSharedState *state = ShmemInitStruct("gmetastate",
 								sizeof(MetaSyncSharedState),
 								&found);
 	if (!found)

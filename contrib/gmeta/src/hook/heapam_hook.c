@@ -1,6 +1,9 @@
-#include "comm/comm.h"
+#include "hook/hook_impl.h"
 
 #include "storage/shm_toc.h"
+
+#include "comm/comm.h"
+#include "comm/handler.h"
 
 #define MAX_SYSTABLE_OID 13369
 
@@ -13,11 +16,7 @@ heap_insert_hook_impl(Relation relation,
                     int options,
                     BulkInsertState bistate)
 {
-    bool found;
     dsm_segment *seg;
-    shm_toc    *toc;
-    shm_mq	   *inq;
-	shm_mq	   *outq;
 	shm_mq_handle *inqh;
 	shm_mq_handle *outqh;
 
@@ -37,43 +36,39 @@ heap_insert_hook_impl(Relation relation,
     tup_len = sizeof(FormData_pg_class);
 
     /* send to sync worker */
-    found = ms_init_shmem(&ms_state);
-    if (!found)
-        ereport(ERROR,
-				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
-				 errmsg("shm should be inited")));
-    
-    elog(LOG, "handle %ld", ms_state->seg_handle);
+    setup_front_msgqueue(&seg, &inqh, &outqh);
 
-    seg = dsm_attach(ms_state->seg_handle);
-    toc = shm_toc_attach(PG_TEST_SHM_MQ_MAGIC, dsm_segment_address(seg));
-	if (toc == NULL)
-		ereport(ERROR,
-				(errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
-				 errmsg("bad magic number in dynamic shared memory segment")));
-    
-    /*
-	 * Attach to the appropriate message queues.
-	 */
-    outq = shm_toc_lookup(toc, 1, false);
-	shm_mq_set_sender(outq, MyProc);
-	outqh = shm_mq_attach(outq, seg, NULL);
-
-    inq = shm_toc_lookup(toc, 2, false);
-	shm_mq_set_receiver(inq, MyProc);
-	inqh = shm_mq_attach(inq, seg, NULL);
-
-    /* Send it back out. */
-
-
-
-    res = shm_mq_send(outqh, tup_len, ctuple, false);
+    CommOperateType op_type = OPTYPE_SET;
+    /* 1. Send it back out. */
+    res = shm_mq_send(outqh, sizeof(OPTYPE_SET), &op_type, false);
     if (res != SHM_MQ_SUCCESS)
         ereport(ERROR,
 				(errcode(ERRCODE_INTERNAL_ERROR),
 				 errmsg("fdb send request by msg queue failed, error code: %d.", res)));
 
-    /* Receive a message. */
+    /* 2. send request data */
+    char *key = palloc0(128);
+    sprintf(key, "%u/%u/%u", relation->rd_node.dbNode, RelationRelationId, ctuple->oid);
+    elog(LOG, "[kaka] insert into fdb key: %s. ", key);
+
+    KeyValueBlock *kv_block;
+    size_t block_size = sizeof(KeyValueBlock) + strlen(key) + 1 + tup_len;
+    kv_block = (KeyValueBlock *) palloc0(block_size);
+    kv_block->key_size = strlen(key) + 1;
+    kv_block->value_size = tup_len;
+  
+    char *data_curser = (char *)kv_block + SizeofKeyValueBlockHeader;
+    memcpy(data_curser, key, kv_block->key_size);
+    data_curser += kv_block->key_size;
+    memcpy(data_curser, ctuple, tup_len);
+    
+    res = shm_mq_send(outqh, block_size, kv_block, false);
+    if (res != SHM_MQ_SUCCESS)
+        ereport(ERROR,
+				(errcode(ERRCODE_INTERNAL_ERROR),
+				 errmsg("fdb send request by msg queue failed, error code: %d.", res)));
+
+    /* 3. Receive a message. */
     res = shm_mq_receive(inqh, &len, &data, false);
     if (res != SHM_MQ_SUCCESS)
         ereport(ERROR,
@@ -85,7 +80,7 @@ heap_insert_hook_impl(Relation relation,
 				(errcode(ERRCODE_INTERNAL_ERROR),
 				 errmsg("fdb send worker failed, error msg: %s.", (char*) data)));
 
-    dsm_detach(seg);
+    release_front_msgqueue(seg);
     
     elog(LOG, "send relation %d, successful.", relation->rd_node.relNode);
 }

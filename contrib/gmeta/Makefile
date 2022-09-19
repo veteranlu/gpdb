@@ -2,7 +2,7 @@
 
 MODULE_big = gmeta
 OBJS = src/gmeta.o \
-		src/comm/setup.o src/comm/bgworker.o \
+		src/comm/setup.o src/comm/bgworker.o src/comm/handler.o\
 		src/hook/heapam_hook.o \
 		src/fdbcli/fdbutil.o \
 		src/tool/reader.o \

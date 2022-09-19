@@ -291,7 +291,7 @@ KVGet(Connection *conn, FDBKeyValue *kvs, ResultSet *rs)
 	return run(conn, kvs, rs, getimpl).e;
 }
 
-/*
+#if 1
 int main(int argc, char** argv) {
 	struct ResultSet* rs0 = malloc(sizeof(ResultSet));
 	memset(rs0, 0, sizeof(ResultSet));
@@ -299,10 +299,12 @@ int main(int argc, char** argv) {
 	checkError(fdb_select_api_version(710), "select API version", rs0);
 	printf("Running performance test at client version: %s\n", fdb_get_client_version());
 
-	Connection conn;
-	CreateConnection(&conn);
+	char *cluster_file_path = "/workspace/gpdb/contrib/gmeta/config/fdb.cluster";
 
-	char *a = "aaaaa";
+	Connection conn;
+	CreateConnection(&conn, cluster_file_path);
+
+	char *a = "aaa11aa";
 	char *value = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
 	FDBKeyValue kv;
@@ -317,7 +319,7 @@ int main(int argc, char** argv) {
 
 	KVGet(&conn, &kv, &rs2);
 
-	KeyValue *kvdata = rs2.kv;
+	KeyValueNode *kvdata = rs2.kvs;
 	while (kvdata != NULL) 
 	{
 		printf("key %s, get value %s.\n", kvdata->data->key, kvdata->data->value);
@@ -330,4 +332,4 @@ int main(int argc, char** argv) {
 	freeResultSet(rs0);
 }
 
-*/
+#endif

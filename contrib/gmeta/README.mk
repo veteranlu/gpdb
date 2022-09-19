@@ -51,9 +51,11 @@ create database db2;
 
 \c db1
 create extension gmeta; 
+-- gmeta's hook would trace system table, and write to FDB
 create table t1(a int, b int, c varchar);
 
 \c db2
+-- get system table from FDB 
 select pg_show_gmetadata('db1'::regclass, 't1'::regclass);
 ``` 
 

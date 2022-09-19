@@ -9,7 +9,7 @@
 
 
 -- Register the function.
-CREATE FUNCTION pg_show_gmetadata(regclass, regclass)
+CREATE FUNCTION pg_show_gmetadata(regclass, regclass, regclass)
 RETURNS SETOF record
 AS 'MODULE_PATHNAME', 'pg_show_gmetadata'
 LANGUAGE C PARALLEL SAFE;

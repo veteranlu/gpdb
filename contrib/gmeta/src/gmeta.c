@@ -42,6 +42,7 @@
 #include "utils/resowner.h"
 
 #include "comm/comm.h"
+#include "hook/hook_impl.h"
 
 
 /* GUC variables. */
