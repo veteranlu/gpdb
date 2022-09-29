@@ -1,0 +1,54 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLGeneric</id><coordinates><x>40</x><y>10</y><w>100</w><h>30</h></coordinates><panel_attributes>psql</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>180</x><y>10</y><w>100</w><h>30</h></coordinates><panel_attributes>master</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>70</x><y>30</y><w>30</w><h>770</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;750</additional_attributes></element><element><id>Relation</id><coordinates><x>220</x><y>30</y><w>30</w><h>770</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;750</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>320</x><y>10</y><w>100</w><h>30</h></coordinates><panel_attributes>coordinator</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>360</x><y>30</y><w>30</w><h>780</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;760</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>470</x><y>10</y><w>100</w><h>30</h></coordinates><panel_attributes>Write worker</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>510</x><y>30</y><w>30</w><h>770</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;750</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>70</x><y>60</y><w>20</w><h>660</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>220</x><y>50</y><w>20</w><h>660</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>80</x><y>60</y><w>160</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+begin;</panel_attributes><additional_attributes>140;20;10;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>360</x><y>90</y><w>20</w><h>450</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>220</x><y>140</y><w>160</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;-
+dispatch to DPS.
+txn info: snapshot, 
+delete from t where a &gt;1;</panel_attributes><additional_attributes>140;20;20;20</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>70</y><w>150</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;-
+begin transaction;
+lock table t;
+
+</panel_attributes><additional_attributes>10;50;30;50;30;10;10;10</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>840</x><y>10</y><w>100</w><h>30</h></coordinates><panel_attributes>FDB</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>890</x><y>30</y><w>30</w><h>780</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;760</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>330</y><w>220</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+batch tuple data</panel_attributes><additional_attributes>10;20;200;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>510</x><y>190</y><w>20</w><h>360</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>890</x><y>190</y><w>20</w><h>500</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>370</y><w>390</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+txn inf: snapshot
+insert into tmp.txn.delete_bitmap values();
+fg=red</panel_attributes><additional_attributes>370;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>170</y><w>540</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;-
+TXN INFO,
+ select * from pg_catalog.pg_class where oid =xx;
+ select * from pg_catalog.pg_attribute where oid =xx;
+</panel_attributes><additional_attributes>520;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>280</y><w>140</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+parser, execute
+</panel_attributes><additional_attributes>10;30;30;30;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>220</y><w>540</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+pg_catalog info
+</panel_attributes><additional_attributes>10;20;520;20</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>350</y><w>170</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;-
+file 0 offset 100 match
+</panel_attributes><additional_attributes>10;40;30;40;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>410</y><w>160</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+result</panel_attributes><additional_attributes>10;20;140;20</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>410</y><w>150</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+result</panel_attributes><additional_attributes>10;20;130;20</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>520</y><w>200</w><h>140</h></coordinates><panel_attributes>lt=&lt;&lt;-
+
+
+commit transaction;
+clean resource: 
+unlock table file_visibility_t;
+unlock table t;
+
+</panel_attributes><additional_attributes>10;80;30;80;30;50;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>80</x><y>590</y><w>160</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+result</panel_attributes><additional_attributes>10;20;140;20</additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>240</y><w>190</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;-
+get pg_catalog with mvcc</panel_attributes><additional_attributes>10;40;30;40;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>80</x><y>120</y><w>160</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+delete from t where a &gt;1;</panel_attributes><additional_attributes>140;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>510</y><w>680</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+move from tmp.txn.file_visibility to file_visibility
+fg=red</panel_attributes><additional_attributes>660;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>430</y><w>150</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+lock file_visibility_t
+fg=red
+</panel_attributes><additional_attributes>10;30;30;30;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>400</y><w>390</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+result</panel_attributes><additional_attributes>10;20;370;20</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>670</x><y>10</y><w>100</w><h>30</h></coordinates><panel_attributes>read worker</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>720</x><y>30</y><w>30</w><h>780</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>10;10;10;760</additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>720</x><y>130</y><w>20</w><h>500</h></coordinates><panel_attributes></panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>690</x><y>300</y><w>250</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+select * from file_visibilty where table = t;</panel_attributes><additional_attributes>200;20;50;20</additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>300</y><w>360</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+execute plan:
+txn inf: snapshot</panel_attributes><additional_attributes>340;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>730</x><y>310</y><w>90</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;-
+execute
+</panel_attributes><additional_attributes>10;40;30;40;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>460</y><w>190</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+write-write conflict check
+fg=red
+</panel_attributes><additional_attributes>10;30;30;30;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>490</y><w>150</w><h>50</h></coordinates><panel_attributes>lt=&lt;&lt;-
+write prepare log
+fg=red
+</panel_attributes><additional_attributes>10;30;30;30;30;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>530</y><w>680</w><h>40</h></coordinates><panel_attributes>lt=&lt;&lt;-
+result</panel_attributes><additional_attributes>10;20;660;20</additional_attributes></element></diagram>

@@ -1,0 +1,69 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>107</x><y>150</y><w>100</w><h>150</h></coordinates><panel_attributes>ColumnMetadata
+--
+name
+Type
+nullable
+comment
+extraInfo
+hidden
+properties</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>737</x><y>150</y><w>170</w><h>180</h></coordinates><panel_attributes>ConnectorMetadata
+--
+
+--
+listSchemaNames
+listTables
+listViews
+
+getTableMetadata
+getColumnMetadata
+listTableColumns</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>297</x><y>140</y><w>350</w><h>120</h></coordinates><panel_attributes>ConnectorTableMetadata
+--
+table: SchemaTableName
+clolumns: List&lt;ColumnMetadata&gt;
+tableConstraints: List&lt;TableConstraint&lt;ColumnHandle&gt;&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>317</x><y>10</y><w>440</w><h>70</h></coordinates><panel_attributes>ConnectorMetadata：数据源的metadata，可以是mysql，pg，hive，hdfs等
+
+ConnectorTableMetadata：定义数据源的表
+COlumnMetadata：定义表的列
+
+bg=blue</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>637</x><y>200</y><w>120</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..n</panel_attributes><additional_attributes>10;10;100;30</additional_attributes></element><element><id>Relation</id><coordinates><x>197</x><y>190</y><w>120</w><h>50</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..n</panel_attributes><additional_attributes>10;10;100;30</additional_attributes></element><element><id>UMLClass</id><coordinates><x>27</x><y>380</y><w>430</w><h>340</h></coordinates><panel_attributes>Connector
+--
+# 事务相关
+beginTransaction(isolationLevel): ConnectorTransactionHandle
+commit(transactionHandle): ConnectorCommitHandle
+rollback(transactioHandle)
+
+# 元数据相关
+getMetadata(transactionHandle): ConnectorMetadata
+getTableProperties(): List&lt;PropertyMetadata&gt;
+getColumnProperties(): List&lt;PerpertyMetadata&gt;
+
+getSystemTables(): Set&lt;SystemTable&gt;
+getProcedures(): Set&lt;Procedure&gt;
+getSplitManager(): ConnectorSplitManager
+getNodePartitioningProvider(): ConnectorNodePartitioningProvider
+getIndexProvider(): ConnectorIndexProvider
+
+# 读写相关
+getPageSinkProvider(): ConnectorPageSinkProvider
+getPageSourceProvider(): ConectorPageSourceProvider</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>147</x><y>740</y><w>550</w><h>60</h></coordinates><panel_attributes>Connector: 外部数据源的实现接口，它又是依赖下面的各种Handler和Provider接口
+ConnectorMetadata: 实现元数据的读写</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>537</x><y>380</y><w>510</w><h>230</h></coordinates><panel_attributes>ConnectorMetadata
+--
+
+# 读元数据相关
+getTableMetadata(session, tbale): ConnectorTableMetadata
+getColumnMetadata(session, tableHandle, columnHandle): Map&lt;String, ColumnHandle&gt;
+
+# 写元数据
+createTable
+dropTable
+trunckTable
+addColumn
+revokeTablePrivileges
+createRole
+
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>447</x><y>420</y><w>110</w><h>30</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>90;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>167</x><y>290</y><w>480</w><h>110</h></coordinates><panel_attributes>lt=-</panel_attributes><additional_attributes>10;10;460;90</additional_attributes></element><element><id>Relation</id><coordinates><x>607</x><y>250</y><w>50</w><h>150</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;30;130</additional_attributes></element><element><id>Relation</id><coordinates><x>637</x><y>320</y><w>170</w><h>80</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>150;10;10;60</additional_attributes></element></diagram>
